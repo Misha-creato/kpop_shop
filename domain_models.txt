@@ -1,0 +1,68 @@
+#-------------------------------------------------
+# Auth
+#
+User1
+    name: CharField
+    surname: CharField
+    email: EmailField
+    password: PasswordField
+
+#-------------------------------------------------
+# Performance
+#
+Group
+    name: CharField
+
+Performance
+    place = ForeignKey(Place)
+    group = OneToOneField(Group)
+    date: DateTimeField
+    price: PositiveSmallIntegerField
+
+#-------------------------------------------------
+# Place
+#
+Place
+    name: CharField
+
+Section
+    place = ForeignKey(Place)
+    name: CharField
+    price: PositiveSmallIntegerField
+
+Seat
+    SEAT_STATUS_AVAILABLE: int = 1
+    SEAT_STATUS_UNAVAILABLE: int = 0
+    SEAT_STATUSES: tuple = (
+        (SEAT_STATUS_AVAILABLE, 'Доступен'),
+        (SEAT_STATUS_UNAVAILABLE, 'Занят')
+    )
+    section = ForeignKey(Section)
+    status = CharField(
+        choices=SEAT_STATUSES,
+        default=SEAT_STATUS_AVAILABLE
+    )
+    number = PositiveSmallIntegerField
+
+#-------------------------------------------------
+# Purchasing
+#
+Ticket
+    performance = ForeignKey(Performance)
+    user = ForeignKey(User)
+    seat = OneToOneField(Seat)
+    number = CharField  # генерим на основе Seat.number
+
+    @property
+    def price(self) -> int:
+        final_price: int = 0
+        final_price = \
+            self.performance.price + self.seat.section.price
+
+        return final_price
+
+    def generate_number(self) -> str:
+        return ''
+
+Transaction
+    ...
